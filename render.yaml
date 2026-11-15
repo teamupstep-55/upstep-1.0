@@ -1,0 +1,35 @@
+# Only DATABASE_URL, SUPABASE_URL and SUPABASE_SERVICE_KEY are asked at creation. SITE_URL/CORS_ORIGINS default to Render's own address;
+# add BREVO_API_KEY, SMTP_FROM (and SITE_URL once you have your own domain) later in Render > Environment.
+# Render "Blueprint": New + > Blueprint > pick this repository. Free plan = the service sleeps after 15 minutes without traffic;
+# the keep-alive workflow in .github/workflows keeps it awake. Do NOT use Render's free Postgres (it expires): use Supabase or Neon.
+services:
+  - type: web
+    name: upstep
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: CRON_SECRET
+        generateValue: true
+      - key: PRODUCTION
+        value: "1"
+      - key: TRUST_PROXY
+        value: "1"
+      - key: DATABASE_URL            # Supabase/Neon connection string
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: SUPABASE_BUCKET
+        value: resumes
+      - key: APP_TIMEZONE
+        value: Asia/Kolkata
+      - key: EMAIL_DAILY_LIMIT
+        value: "100"
+      - key: KEEP_AWAKE
+        value: "1"
+      - key: AUTO_SCHEDULER
+        value: "1"
