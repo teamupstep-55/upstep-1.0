@@ -60,12 +60,17 @@ def applications():
     status = request.args.get("status")
     search = (request.args.get("q") or "").strip().lower()
     sql, args = "select id,name,email,phone,college,role_applied,status,pipeline,created_at,user_id from applications where true", []
-    if status in ("new", "shortlisted", "test_sent", "test_taken", "interview_scheduled", "selected", "onboarded", "rejected"):
-        sql += " and status=%s"; args.append(status)
+    if status == "active":
+        sql += " and status not in ('selected', 'onboarded', 'rejected')"
+    elif status and status != "all":
+        if status in ("new", "shortlisted", "test_sent", "test_taken", "interview_scheduled", "selected", "onboarded", "rejected"):
+            sql += " and status=%s"; args.append(status)
     if search:
         sql += " and (lower(name) like %s or lower(college) like %s or lower(email) like %s)"
         args += [f"%{search}%"] * 3
     counts = {r["status"]: r["c"] for r in db.q("select status, count(*) c from applications group by status")}
+    counts["all"] = sum(counts.values())
+    counts["active"] = sum(v for k, v in counts.items() if k not in ("selected", "onboarded", "rejected"))
     return jsonify(applications=db.q(sql + " order by created_at desc limit 300", args), counts=counts)
 
 
@@ -109,7 +114,12 @@ def update_application(aid):
     if status not in valid_statuses:
         bad("Invalid status.")
     note = text(b, "admin_note", 2000) if "admin_note" in b else a["admin_note"]
-    db.run("update applications set status=%s, admin_note=%s where id=%s", (status, note, aid))
+    if status == "rejected":
+        db.run("update applications set status='rejected', pipeline='rejected', admin_note=%s where id=%s", (note, aid))
+    elif status == "selected":
+        db.run("update applications set status='selected', pipeline='onboarded', admin_note=%s where id=%s", (note, aid))
+    else:
+        db.run("update applications set status=%s, admin_note=%s where id=%s", (status, note, aid))
     if status == "shortlisted" and a["status"] != "shortlisted":
         company = site_settings().get("company_name", "our team")
         mailer.send_mail(a["email"], f"You are shortlisted – {company}",

@@ -6,8 +6,8 @@ import { Async, Badge, Empty, Err, Field, Modal, PageHead, SecretModal, useActio
 
 const TONE = { new: 'blue', shortlisted: 'gold', selected: 'green', rejected: 'red', test_sent: 'blue', test_taken: 'blue', interview_scheduled: 'gold', onboarded: 'green' }
 const LABEL = { new: 'New', shortlisted: 'Shortlisted', selected: 'Selected', rejected: 'Rejected', test_sent: 'Test Sent', test_taken: 'Test Taken', interview_scheduled: 'Interview', onboarded: 'Onboarded' }
-const PIPELINE_TONE = { applied: '', test_sent: 'blue', test_taken: 'blue', shortlisted: 'gold', interview_scheduled: 'gold', onboarded: 'green' }
-const PIPELINE_LABEL = { applied: 'Applied', test_sent: 'Test Sent', test_taken: 'Test Taken', shortlisted: 'Shortlisted', interview_scheduled: 'Interview Scheduled', onboarded: 'Onboarded' }
+const PIPELINE_TONE = { applied: '', test_sent: 'blue', test_taken: 'blue', shortlisted: 'gold', interview_scheduled: 'gold', onboarded: 'green', rejected: 'red' }
+const PIPELINE_LABEL = { applied: 'Applied', test_sent: 'Test Sent', test_taken: 'Test Taken', shortlisted: 'Shortlisted', interview_scheduled: 'Interview Scheduled', onboarded: 'Onboarded', rejected: 'Rejected' }
 
 function Detail({ id, onClose, onChanged }) {
   const st = useFetch(`/staff/applications/${id}`)
@@ -26,8 +26,15 @@ function Detail({ id, onClose, onChanged }) {
 
   const setStatus = async (status) => {
     const r = await run(() => api(`/staff/applications/${id}`, { method: 'PATCH', body: { status, admin_note: note ?? st.data.application.admin_note ?? '' } }),
-      status === 'shortlisted' ? 'Shortlisted. An email was sent to the applicant.' : 'Saved')
-    if (r) { st.reload(); onChanged() }
+      status === 'shortlisted' ? 'Shortlisted. An email was sent to the applicant.' : status === 'rejected' ? 'Application rejected.' : 'Saved')
+    if (r) {
+      onChanged()
+      if (status === 'rejected') {
+        onClose()
+      } else {
+        st.reload()
+      }
+    }
   }
   const openResume = async () => {
     try {
@@ -201,7 +208,7 @@ function Detail({ id, onClose, onChanged }) {
 }
 
 export default function Applications() {
-  const [status, setStatus] = useState('')
+  const [status, setStatus] = useState('active')
   const [q, setQ] = useState('')
   const [open, setOpen] = useState(null)
   const st = useFetch(`/staff/applications?status=${status}&q=${encodeURIComponent(q)}`)
@@ -210,8 +217,20 @@ export default function Applications() {
       <PageHead title="Applications" sub="Everyone who filled the internship form." />
       <div className="row" style={{ marginBottom: 14 }}>
         <div className="tabs" style={{ margin: 0 }}>
-          {[['', 'All'], ['new', 'New'], ['shortlisted', 'Shortlisted'], ['selected', 'Selected'], ['rejected', 'Rejected'], ['test_sent', 'Test Sent'], ['test_taken', 'Test Taken'], ['interview_scheduled', 'Interview'], ['onboarded', 'Onboarded']].map(([k, l]) => (
-            <button key={k} className={`tab ${status === k ? 'on' : ''}`} onClick={() => setStatus(k)}>{l}{st.data && k && st.data.counts[k] ? ` (${st.data.counts[k]})` : ''}</button>
+          {[
+            ['active', 'Active'],
+            ['new', 'New'],
+            ['shortlisted', 'Shortlisted'],
+            ['test_sent', 'Test Sent'],
+            ['test_taken', 'Test Taken'],
+            ['interview_scheduled', 'Interview'],
+            ['selected', 'Selected'],
+            ['rejected', 'Rejected'],
+            ['all', 'All'],
+          ].map(([k, l]) => (
+            <button key={k} className={`tab ${status === k ? 'on' : ''}`} onClick={() => setStatus(k)}>
+              {l}{st.data && st.data.counts && st.data.counts[k] !== undefined ? ` (${st.data.counts[k]})` : ''}
+            </button>
           ))}
         </div>
         <input className="input" style={{ maxWidth: 260, marginLeft: 'auto' }} placeholder="Search name, college or email" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search applications" />
