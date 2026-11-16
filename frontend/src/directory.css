@@ -1,16 +1,6 @@
 /* Class directory, public layout and new admin screens. Uses the variables from styles.css */
-.pub-shell { min-height: 100vh; display: flex; flex-direction: column; }
-.pub-shell > main { flex: 1; }
-.pub-top { background: var(--white); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20; }
-.pub-top .in { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 0; flex-wrap: wrap; }
-.pub-top nav { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; font-weight: 500; }
-.pub-top nav a { text-decoration: none; color: var(--ink-2); }
-.pub-top nav a.active, .pub-top nav a:hover { color: var(--cobalt); }
-.pub-foot { background: var(--ink); color: #c9d4e4; padding: 32px 0; margin-top: 56px; font-size: .92rem; }
-.pub-foot a { color: #fff; }
-.pub-foot .links { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 12px; }
 .page-w { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
-.dir-hero { background: linear-gradient(180deg, var(--sky), var(--paper)); padding: 36px 0 20px; }
+.dir-hero { background: linear-gradient(180deg, var(--sky), var(--paper)); padding: 32px 0 16px; }
 .dir-hero h1 { font-size: clamp(1.9rem, 4.4vw, 3rem); max-width: 22ch; }
 .dir-hero p { color: var(--ink-2); max-width: 60ch; margin: 10px 0 0; }
 .searchbar { display: flex; gap: 10px; margin: 20px 0 12px; flex-wrap: wrap; }
@@ -98,12 +88,12 @@
 .linklike { background: none; border: 0; padding: 0; color: var(--cobalt); text-decoration: underline; cursor: pointer; font: inherit; }
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 
-/* phone: collapse the public menu behind a button */
-@media (max-width: 820px) {
-  .pub-top .in { flex-wrap: nowrap; position: relative; padding: 10px 16px; }
-  .pub-top .menu-btn { display: inline-block; background: none; border: 1px solid var(--line); border-radius: 8px; padding: 7px 14px; font: inherit; font-weight: 600; color: var(--ink); cursor: pointer; }
-  .pub-top nav { display: none; position: absolute; top: 100%; left: 0; right: 0; background: #fff; border-bottom: 1px solid var(--line); padding: 8px 16px 16px; flex-direction: column; align-items: stretch; gap: 0; box-shadow: 0 10px 24px rgba(18,38,63,.08); }
-  .pub-top nav.open { display: flex; }
-  .pub-top nav a, .pub-top nav .btn { padding: 12px 4px; }
-  .pub-top nav .btn { margin-top: 8px; text-align: center; }
+
+@media (max-width: 640px) {
+  .dir-hero { padding: 22px 0 8px; }
+  .searchbar .btn { width: 100%; }
+  .filters { grid-template-columns: 1fr 1fr; }
+  .logrow { grid-template-columns: 1fr; gap: 4px; }
+  .ccard { padding: 16px; }
+  .aside-card { position: static; }
 }

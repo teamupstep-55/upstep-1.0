@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { fmtDate, fmtDay, fmtTime, KIND_LABEL, OUTCOME, STATUS } from '../../util'
-import { Async, Badge, Empty, PageHead, useFetch } from '../../components/ui'
+import { Async, Badge, Empty, useFetch } from '../../components/ui'
 
 function Journey({ me }) {
   const total = me.training_days
@@ -34,9 +34,18 @@ export default function Dashboard() {
     <Async state={st}>
       {(d) => (
         <>
-          <PageHead title={`Hello, ${d.me.name.split(' ')[0]}`} sub="Here is where you stand today.">
-            <Link className="btn gold" to="/app/tasks">Open my tasks</Link>
-          </PageHead>
+          <div className="welcome">
+            <div>
+              <h2>Hello, {d.me.name.split(' ')[0]}</h2>
+              <p>Here is where you stand today. Check your tasks, join today’s class and post your stand-up.</p>
+              <Link className="btn" to="/app/tasks">Open my tasks</Link>
+            </div>
+            <svg className="art" viewBox="0 0 170 130" fill="none" aria-hidden="true">
+              <rect x="14" y="84" width="142" height="26" rx="7" fill="#5468d4" /><rect x="26" y="58" width="118" height="26" rx="7" fill="#f4868c" />
+              <rect x="38" y="30" width="94" height="28" rx="7" fill="#dfe5ff" /><rect x="50" y="39" width="44" height="5" rx="2.5" fill="#8d9ae6" /><rect x="50" y="48" width="28" height="4" rx="2" fill="#b4bdf0" />
+              <circle cx="140" cy="22" r="9" fill="#ffd98a" />
+            </svg>
+          </div>
           <Journey me={d.me} />
           {d.next_unlock && <p className="small muted" style={{ margin: '-6px 0 14px' }}>Your next task unlocks on {fmtDate(d.next_unlock)}.</p>}
           {d.certificate && (

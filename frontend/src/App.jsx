@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Navigate, NavLink, Outlet, Route, Routes, useLocation } from 'react-router-dom'
+import { Link, Navigate, NavLink, Outlet, Route, Routes, useLocation } from 'react-router-dom'
 import { useAuth, useSite } from './auth'
 import { Brand } from './components/Brand'
 import Home from './pages/public/Home'
+import Internships from './pages/public/Internships'
+import Programme from './pages/public/Programme'
 import Apply from './pages/public/Apply'
 import Login from './pages/public/Login'
 import ChangePassword from './pages/public/ChangePassword'
@@ -54,12 +56,28 @@ const ICONS = {
   people: 'M9 11a3 3 0 100-6 3 3 0 000 6zM3 20c0-3 3-5 6-5s6 2 6 5M17 10a2.5 2.5 0 100-5M18 15c2 .5 3 2 3 5',
   review: 'M5 4h14v16H5zM8 9h8M8 13h8M8 17h5',
   more: 'M5 12h.01M12 12h.01M19 12h.01',
+  test: 'M9 3h6M10 3v6l-5 9a2 2 0 002 3h10a2 2 0 002-3l-5-9V3',
+  sun: 'M12 16a4 4 0 100-8 4 4 0 000 8zM12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5',
+  group: 'M12 11a3 3 0 100-6 3 3 0 000 6zM5 20c0-3 3-5 7-5s7 2 7 5',
+  mail: 'M3 6h18v12H3zM3 7l9 7 9-7',
+  money: 'M12 3v18M16 7c-1-1.5-2.5-2-4-2-2.5 0-4 1.2-4 3s1.5 2.5 4 3 4 1.2 4 3-1.5 3-4 3c-1.8 0-3.3-.7-4.3-2',
+  gear: 'M12 15a3 3 0 100-6 3 3 0 000 6zM19 12a7 7 0 00-.1-1.3l2-1.5-2-3.4-2.3.9a7 7 0 00-2.2-1.3L14 3h-4l-.4 2.4a7 7 0 00-2.2 1.3l-2.3-.9-2 3.4 2 1.5A7 7 0 005 12c0 .4 0 .9.1 1.3l-2 1.5 2 3.4 2.3-.9a7 7 0 002.2 1.3L10 21h4l.4-2.4a7 7 0 002.2-1.3l2.3.9 2-3.4-2-1.5c.1-.4.1-.9.1-1.3z',
+  bell: 'M6 16V11a6 6 0 1112 0v5l2 2H4zM10 21h4',
+  book: 'M5 4h11a3 3 0 013 3v13H8a3 3 0 01-3-3zM5 17a3 3 0 013-3h11',
+  bolt: 'M13 2L4 14h7l-1 8 9-12h-7z',
+  doc: 'M7 3h8l4 4v14H7zM14 3v5h5',
 }
-const TAB_ICON = { '/app': 'home', '/app/tasks': 'tasks', '/app/calendar': 'calendar', '/app/chat': 'chat', '/admin': 'home',
-  '/admin/applications': 'review', '/admin/students': 'people', '/admin/review': 'review', '/admin/chat': 'chat' }
+const NAV_ICON = {
+  '/app': 'home', '/app/tasks': 'tasks', '/app/test': 'test', '/app/calendar': 'calendar', '/app/chat': 'chat', '/app/standup': 'sun', '/app/team': 'group',
+  '/admin': 'home', '/admin/applications': 'mail', '/admin/students': 'people', '/admin/tasks': 'tasks', '/admin/review': 'review', '/admin/groups': 'group',
+  '/admin/schedule': 'calendar', '/admin/standups': 'sun', '/admin/chat': 'chat', '/admin/slots': 'calendar', '/admin/tests': 'test', '/admin/test-results': 'review',
+  '/admin/interviews': 'people', '/admin/directory': 'book', '/admin/templates': 'doc', '/admin/money': 'money', '/admin/automation': 'bolt', '/admin/legal': 'doc',
+  '/admin/announcements': 'bell', '/admin/mentors': 'people', '/admin/settings': 'gear',
+}
+const TAB_ICON = NAV_ICON
 const TABS = { student: ['/app', '/app/tasks', '/app/calendar', '/app/chat'], mentor: ['/admin', '/admin/students', '/admin/review', '/admin/chat'],
   admin: ['/admin', '/admin/applications', '/admin/students', '/admin/review'] }
-const Icon = ({ name }) => <svg viewBox="0 0 24 24" aria-hidden="true"><path d={ICONS[name]} /></svg>
+const Icon = ({ name }) => <svg viewBox="0 0 24 24" aria-hidden="true"><path d={ICONS[name] || ICONS.more} /></svg>
 
 function Shell({ links }) {
   const { user, logout } = useAuth()
@@ -68,22 +86,33 @@ function Shell({ links }) {
   useEffect(() => { setOpen(false) }, [loc.pathname])
   const tabs = (TABS[user.role] || []).map((to) => links.find((l) => l.to === to)).filter(Boolean)
   const roleName = user.role === 'student' ? 'Student' : user.role === 'mentor' ? 'Mentor' : 'Admin'
+  const initials = user.name.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase()
+  const today = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+  const helpTo = user.role === 'student' ? '/app/chat' : '/admin/chat'
   return (
     <div className="app">
       <aside className="side">
-        <Brand light />
+        <Brand />
         <nav aria-label="Main">
           {links.map((l) => (
-            <NavLink key={l.to} to={l.to} end={l.end} className={({ isActive }) => `nl ${isActive ? 'active' : ''}`}>{l.label}</NavLink>
+            <NavLink key={l.to} to={l.to} end={l.end} className={({ isActive }) => `nl ${isActive ? 'active' : ''}`}><Icon name={NAV_ICON[l.to]} />{l.label}</NavLink>
           ))}
         </nav>
-        <div className="who">
-          <div><b>{user.name}</b><span>{roleName}</span></div>
-          <button onClick={logout}>Sign out</button>
+        <div className="help">
+          <b>Need help?</b>
+          {user.role === 'student' ? <>Ask your mentor in <Link to={helpTo}>chat</Link>.</> : <>Message your team in <Link to={helpTo}>chat</Link>.</>}
         </div>
       </aside>
-      <header className="mtop"><Brand light /><span>{roleName}</span></header>
-      <main className="main"><Outlet /></main>
+      <div className="shell-col">
+        <header className="dtop">
+          <span className="date">{today}</span>
+          <span className="role-pill">{roleName}</span>
+          <div className="me"><span className="avatar" aria-hidden="true">{initials}</span><div><b>{user.name}</b><span>{user.email}</span></div></div>
+          <button className="out" onClick={logout}>Sign out</button>
+        </header>
+        <header className="mtop"><Brand /><span>{roleName}</span></header>
+        <main className="main"><Outlet /></main>
+      </div>
       <nav className="mtabs" aria-label="Quick tabs">
         {tabs.map((l) => (
           <NavLink key={l.to} to={l.to} end={l.end} className={({ isActive }) => (isActive ? 'active' : '')}>
@@ -96,7 +125,7 @@ function Shell({ links }) {
         <div className="panel" onClick={(e) => e.stopPropagation()}>
           <div className="who"><div><b>{user.name}</b><span>{roleName}</span></div><button onClick={logout}>Sign out</button></div>
           {links.map((l) => (
-            <NavLink key={l.to} to={l.to} end={l.end} className={({ isActive }) => `nl ${isActive ? 'active' : ''}`}>{l.label}</NavLink>
+            <NavLink key={l.to} to={l.to} end={l.end} className={({ isActive }) => `nl ${isActive ? 'active' : ''}`}><Icon name={NAV_ICON[l.to]} />{l.label}</NavLink>
           ))}
           <button type="button" className="close" onClick={() => setOpen(false)}>Close</button>
         </div>
@@ -153,6 +182,8 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/internships" element={<Internships />} />
+      <Route path="/programme" element={<Programme />} />
       <Route path="/apply" element={<Apply />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />

@@ -1,10 +1,13 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../auth'
-import { Async, PageHead, useFetch } from '../../components/ui'
+import { Async, Badge, Empty, PageHead, useFetch } from '../../components/ui'
+import { fmtDate } from '../../util'
 
 export default function Overview() {
   const { user } = useAuth()
   const st = useFetch('/staff/overview')
+  const apps = useFetch(user.role === 'admin' ? '/staff/applications' : null)
+  const recent = (apps.data?.applications || []).slice(0, 5)
   return (
     <>
       <PageHead title={`Welcome, ${user.name.split(' ')[0]}`} sub={user.role === 'admin' ? 'Everything happening in the programme.' : 'Your mentees and their work.'} />
@@ -26,14 +29,34 @@ export default function Overview() {
             {user.role === 'admin' && d.unassigned_students > 0 && (
               <div className="alert info">{d.unassigned_students} student{d.unassigned_students > 1 ? 's have' : ' has'} no mentor yet. <Link to="/admin/students">Assign mentors</Link></div>
             )}
+            {user.role === 'admin' && (
+              <div className="box">
+                <div className="head"><h3>Recent applications</h3><Link to="/admin/applications">View all</Link></div>
+                {recent.length === 0 ? <Empty title="No applications yet">New applications will show up here.</Empty> : (
+                  <div className="scroll-x">
+                    <table className="tbl">
+                      <thead><tr><th>Name</th><th>College</th><th>Role</th><th>Applied</th><th>Status</th></tr></thead>
+                      <tbody>
+                        {recent.map((a) => (
+                          <tr key={a.id}>
+                            <td><Link to="/admin/applications">{a.name}</Link></td><td>{a.college}</td><td>{a.role_applied}</td><td>{fmtDate(a.created_at)}</td>
+                            <td><Badge tone={a.status === 'new' ? 'blue' : a.status === 'selected' || a.status === 'onboarded' ? 'green' : a.status === 'rejected' ? 'red' : 'gold'}>{a.status.replace(/_/g, ' ')}</Badge></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
             <div className="box">
               <h3>Quick actions</h3>
-              <div className="row">
-                <Link className="btn" to="/admin/tasks">Assign a task</Link>
-                <Link className="btn ghost" to="/admin/schedule">Schedule a class</Link>
-                {user.role === 'admin' && <Link className="btn ghost" to="/admin/tests">Manage tests</Link>}
-                {user.role === 'admin' && <Link className="btn ghost" to="/admin/groups">Generate groups</Link>}
-                {user.role === 'admin' && <Link className="btn ghost" to="/admin/announcements">Post an announcement</Link>}
+              <div className="actions">
+                <Link className="action" to="/admin/tasks"><i aria-hidden="true">✅</i>Assign a task</Link>
+                <Link className="action" to="/admin/schedule"><i aria-hidden="true">📅</i>Schedule a class</Link>
+                {user.role === 'admin' && <Link className="action" to="/admin/tests"><i aria-hidden="true">📝</i>Manage tests</Link>}
+                {user.role === 'admin' && <Link className="action" to="/admin/groups"><i aria-hidden="true">👥</i>Generate groups</Link>}
+                {user.role === 'admin' && <Link className="action" to="/admin/announcements"><i aria-hidden="true">📣</i>Post an announcement</Link>}
               </div>
             </div>
           </>

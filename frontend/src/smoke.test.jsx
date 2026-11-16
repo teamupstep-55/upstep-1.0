@@ -31,6 +31,21 @@ describe('public site', () => {
     expect(screen.getByText('Full-time role based on performance')).toBeTruthy()
     expect(screen.getByText('Interview readiness')).toBeTruthy()
   })
+  it('internships page filters by stream', async () => {
+    open('/internships?stream=commerce')
+    await see('Commerce & Management internships')
+    expect(screen.getAllByText('Apply in this stream').length).toBeGreaterThan(0)
+  })
+  it('programme page shows the plan, classes and questions', async () => {
+    open('/programme')
+    await see('Common questions')
+    expect(screen.getByText('Classes you can add')).toBeTruthy()
+  })
+  it('login page offers student and admin tabs', async () => {
+    open('/login')
+    await see('Admin or mentor')
+    expect(screen.getByRole('tab', { name: 'Student' })).toBeTruthy()
+  })
   it('application form submits and shows the thank-you message', async () => {
     // jsdom cannot stream a File through Node's fetch, so only this one call is stubbed.
     // The real multipart upload is covered by backend/tests (test_application_*).

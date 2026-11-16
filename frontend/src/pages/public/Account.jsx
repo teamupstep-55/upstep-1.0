@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { api, tokenStore } from '../../api'
 import { useAuth } from '../../auth'
+import AuthLayout from '../../components/AuthLayout'
 import { Consent, PublicShell, usePageTitle } from '../../components/Public'
 import { Err, Field, useAction } from '../../components/ui'
 
@@ -20,19 +21,23 @@ export function Register() {
     if (r) { tokenStore.set(r.token); await refresh(); nav(loc.state?.from || '/classes', { replace: true }) }
   }
   return (
-    <PublicShell>
-      <form className="form-card narrow" onSubmit={submit}>
-        <h1 style={{ fontSize: '1.9rem' }}>Create a free account</h1>
-        <p className="muted" style={{ margin: 0 }}>Save time and post honest reviews of classes you have attended.</p>
+    <AuthLayout heading="Start your journey from one place." points={[['📝', 'Apply for an internship in your stream'], ['⭐', 'Review and compare classes in Pune'], ['🎓', 'Get a student dashboard once you are selected']]}>
+      <h1>Create an account</h1>
+      <p className="muted" style={{ margin: 0 }}>Choose what you want to do first.</p>
+      <div className="choice-grid">
+        <Link className="choice" to="/apply"><span className="ico" aria-hidden="true">🚀</span><span><b>I want an internship</b><span className="d">Apply once. If selected, we create your student login.</span></span></Link>
+      </div>
+      <div className="divider">or create a free account to review classes</div>
+      <form onSubmit={submit}>
         <Err>{error}</Err>
         <Field label="Your name"><input className="input" value={f.name} onChange={set('name')} required maxLength={80} autoComplete="name" /></Field>
         <Field label="Email"><input className="input" type="email" value={f.email} onChange={set('email')} required autoComplete="email" /></Field>
         <Field label="Password" hint="At least 8 characters with letters and numbers"><input className="input" type="password" value={f.password} onChange={set('password')} required autoComplete="new-password" /></Field>
         <Consent checked={ok} onChange={setOk} />
-        <button className="btn gold" disabled={busy || !ok}>Create account</button>
-        <span className="small muted">Already have one? <Link to="/login">Sign in</Link></span>
+        <button className="btn gold block lg" style={{ marginTop: 14 }} disabled={busy || !ok}>Create account</button>
       </form>
-    </PublicShell>
+      <p className="small muted" style={{ marginTop: 14 }}>Already have one? <Link to="/login">Sign in</Link></p>
+    </AuthLayout>
   )
 }
 
