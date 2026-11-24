@@ -1,0 +1,10 @@
+Flask>=3.0
+flask-cors>=4.0
+psycopg[binary,pool]>=3.1
+PyJWT>=2.7
+python-dotenv>=1.0
+requests>=2.31
+gunicorn>=22.0
+segno>=1.6
+pypdf>=4.0
+redis>=5.0   # optional: shared rate limits

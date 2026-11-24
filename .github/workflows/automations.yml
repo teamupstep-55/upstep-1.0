@@ -1,0 +1,17 @@
+# Runs the automation rules (task unlock, reminders, certificates, interview reminders, weekly report ...) twice an hour.
+# This also wakes the app if it is asleep. Setup: add two repository secrets:
+#   SITE_URL     = https://YOUR-SERVICE.onrender.com
+#   CRON_SECRET  = the same value as the CRON_SECRET environment variable on the server
+name: automations
+on:
+  schedule:
+    - cron: "12,42 * * * *"
+  workflow_dispatch:
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          curl -fsS --max-time 150 --retry 3 --retry-delay 30 -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.SITE_URL }}/api/cron/run"
