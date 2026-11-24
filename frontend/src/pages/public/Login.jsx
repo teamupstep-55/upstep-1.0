@@ -8,7 +8,7 @@ export default function Login() {
   const { user, login, ready } = useAuth()
   const nav = useNavigate()
   const loc = useLocation()
-  const home = (u) => (u.role === 'student' ? '/app' : u.role === 'member' ? (loc.state?.from || '/classes') : '/admin')
+  const home = (u) => (u.role === 'student' ? '/app' : '/admin')
   const [email, setEmail] = useState('')
   const [pw, setPw] = useState('')
   const [error, setError] = useState('')
@@ -26,14 +26,14 @@ export default function Login() {
     <div className="auth-box">
       <Brand />
       <h1 style={{ fontSize: '2.2rem', margin: '32px 0 6px' }}>Sign in</h1>
-      <p className="muted">Students, mentors, admins and directory members sign in here.</p>
+      <p className="muted">Students, mentors and admins sign in here.</p>
       <form className="panel" onSubmit={submit} style={{ marginTop: 18 }}>
         <Err>{error}</Err>
         <Field label="Email"><input className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="username" autoFocus /></Field>
         <Field label="Password"><input className="input" type="password" value={pw} onChange={(e) => setPw(e.target.value)} required autoComplete="current-password" /></Field>
         <button className="btn" style={{ width: '100%' }} disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}</button>
       </form>
-      <p className="small muted" style={{ marginTop: 16 }}><Link to="/forgot-password">Forgot your password?</Link> New here? <Link to="/register">Create a free account</Link> to review classes, or <Link to="/apply">apply for the internship</Link>.</p>
+      <p className="small muted" style={{ marginTop: 16 }}><Link to="/forgot-password">Forgot your password?</Link> New here? <Link to="/apply">Apply for the internship</Link>.</p>
     </div>
   )
 }

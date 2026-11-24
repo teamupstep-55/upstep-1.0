@@ -28,17 +28,11 @@ import TestManager from './pages/staff/TestManager'
 import TestResults from './pages/staff/TestResults'
 import InternAdmin from './pages/staff/InternAdmin'
 import Interviews from './pages/staff/Interviews'
-import Classes from './pages/public/Classes'
-import ClassPage from './pages/public/ClassPage'
-import ListYourClass from './pages/public/ListYourClass'
-import ManageClass from './pages/public/ManageClass'
 import Legal from './pages/public/Legal'
 import { ForgotPassword, Register, ResetPassword, VerifyEmail } from './pages/public/Account'
 import Status from './pages/public/Status'
 import Pay from './pages/public/Pay'
 import { CertificatePage, VerifyCertificate } from './pages/public/Certificate'
-import { AdReport, Advertise } from './pages/public/Advertise'
-import DirectoryAdmin from './pages/staff/DirectoryAdmin'
 import Templates from './pages/staff/Templates'
 import Slots from './pages/staff/Slots'
 import Automation from './pages/staff/Automation'
@@ -67,7 +61,7 @@ function Shell({ links }) {
 }
 
 const STUDENT_LINKS = [
-  { to: '/app', label: 'Home', end: true }, { to: '/app/tasks', label: 'My tasks' },
+  { to: '/app', label: 'Dashboard', end: true }, { to: '/app/tasks', label: 'My tasks' },
   { to: '/app/test', label: 'Test' },
   { to: '/app/calendar', label: 'Calendar' }, { to: '/app/chat', label: 'Chat' },
   { to: '/app/standup', label: 'Daily stand-up' }, { to: '/app/team', label: 'My team' },
@@ -84,7 +78,7 @@ const STAFF_LINKS = (role) => [
     { to: '/admin/tests', label: 'Tests' }, { to: '/admin/test-results', label: 'Test Results' }, { to: '/admin/intern-programme', label: 'Intern programme' },
     { to: '/admin/interviews', label: 'Interviews' },
     { to: '/admin/slots', label: 'Interview slots' },
-    { to: '/admin/directory', label: 'Class directory' }, { to: '/admin/templates', label: 'Task templates' },
+    { to: '/admin/templates', label: 'Task templates' },
     { to: '/admin/money', label: 'Money & certificates' }, { to: '/admin/automation', label: 'Automation' }, { to: '/admin/legal', label: 'Legal pages' },
     { to: '/admin/announcements', label: 'Announcements' }, { to: '/admin/mentors', label: 'Mentors' }, { to: '/admin/settings', label: 'Settings' },
   ] : []),
@@ -96,7 +90,6 @@ function Guard({ area }) {
   if (!ready) return <p style={{ padding: 40 }}>Loading…</p>
   if (!user) return <Navigate to="/login" replace state={{ from: loc.pathname }} />
   if (user.must_change_password) return <Navigate to="/change-password" replace />
-  if (user.role === 'member') return <Navigate to="/classes" replace />      // directory members have no dashboard
   const isStudent = user.role === 'student'
   if ((area === 'student') !== isStudent) return <Navigate to={isStudent ? '/app' : '/admin'} replace />
   return <Shell links={isStudent ? STUDENT_LINKS : STAFF_LINKS(user.role)} />
@@ -120,14 +113,6 @@ export default function App() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:token" element={<ResetPassword />} />
       <Route path="/verify-email/:token" element={<VerifyEmail />} />
-      <Route path="/classes" element={<Classes />} />
-      <Route path="/classes/in/:areaSlug" element={<Classes />} />
-      <Route path="/classes/topic/:topicSlug" element={<Classes />} />
-      <Route path="/classes/:slug" element={<ClassPage />} />
-      <Route path="/list-your-class" element={<ListYourClass />} />
-      <Route path="/manage/:token" element={<ManageClass />} />
-      <Route path="/advertise" element={<Advertise />} />
-      <Route path="/ad-report/:token" element={<AdReport />} />
       <Route path="/terms" element={<Legal slug="terms" />} />
       <Route path="/privacy" element={<Legal slug="privacy" />} />
       <Route path="/refund" element={<Legal slug="refund" />} />
@@ -165,7 +150,6 @@ export default function App() {
         <Route path="intern-programme" element={<InternAdmin />} />
         <Route path="interviews" element={<Interviews />} />
         <Route path="slots" element={<Slots />} />
-        <Route path="directory" element={<DirectoryAdmin />} />
         <Route path="templates" element={<Templates />} />
         <Route path="money" element={<Money />} />
         <Route path="automation" element={<Automation />} />

@@ -20,9 +20,6 @@ export function PublicShell({ children }) {
         <div className="page-w in">
           <Brand />
           <nav aria-label="Main">
-            <NavLink to="/classes">Find classes</NavLink>
-            <NavLink to="/list-your-class">List your class</NavLink>
-            {site.payments_enabled && <NavLink to="/advertise">Advertise</NavLink>}
             <NavLink to="/apply">Internship</NavLink>
             {user ? (
               <>
@@ -44,7 +41,7 @@ export function PublicShell({ children }) {
         <div className="page-w">
           <div className="links">
             <Link to="/terms">Terms of Use</Link><Link to="/privacy">Privacy Policy</Link><Link to="/refund">Refund Policy</Link>
-            <Link to="/internship-terms">Internship Terms</Link><Link to="/list-your-class">List your class</Link>{site.payments_enabled && <Link to="/advertise">Advertise</Link>}
+            <Link to="/internship-terms">Internship Terms</Link>
           </div>
           <div>© {new Date().getFullYear()} {site.company_name}. {site.contact_email && <>Contact: <a href={`mailto:${site.contact_email}`}>{site.contact_email}</a></>}</div>
         </div>
@@ -72,21 +69,11 @@ export function StarPicker({ value, onChange }) {
   )
 }
 
-/** A labelled sponsored placement. Never changes the order of real results. Falls back to Google AdSense if configured and no direct ad. */
+/** A labelled sponsored placement. */
 export function AdSlot({ slot = 'directory' }) {
   const site = useSite()
   const [ad, setAd] = useState(undefined)
   useEffect(() => { api(`/ads/serve?slot=${slot}`).then((d) => setAd(d.ad)).catch(() => setAd(null)) }, [slot])
-  useEffect(() => {
-    if (ad !== null || !site.adsense_client || !site.adsense_slot) return
-    if (!document.querySelector('script[data-adsense]')) {
-      const s = document.createElement('script')
-      s.async = true; s.dataset.adsense = '1'; s.crossOrigin = 'anonymous'
-      s.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(site.adsense_client)}`
-      document.head.appendChild(s)
-    }
-    try { (window.adsbygoogle = window.adsbygoogle || []).push({}) } catch { /* blocked */ }
-  }, [ad, site.adsense_client, site.adsense_slot])
   if (ad) {
     return (
       <a className="sponsor" href={ad.go_url} target="_blank" rel="sponsored noopener noreferrer">
@@ -94,9 +81,6 @@ export function AdSlot({ slot = 'directory' }) {
         <span className="small muted">{ad.advertiser_name}</span>
       </a>
     )
-  }
-  if (ad === null && site.adsense_client && site.adsense_slot) {
-    return <div><span className="small muted">Sponsored</span><ins className="adsbygoogle" style={{ display: 'block' }} data-ad-client={site.adsense_client} data-ad-slot={site.adsense_slot} data-ad-format="auto" data-full-width-responsive="true" /></div>
   }
   return null
 }
